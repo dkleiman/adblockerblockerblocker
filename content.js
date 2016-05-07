@@ -1,7 +1,7 @@
 var some = function(list, callback){
-	list.forEach(function(item){
-		if(callback(item)) return true;
-	});
+	for(var i = 0; i < list.length; i++){
+		if(callback(list[i])) return true;
+	}
 	return false;
 };
 
@@ -12,7 +12,8 @@ chrome.runtime.onMessage.addListener(
 			    content,
 			    doc,
 			    scripts,
-			    whitelist;
+			    whitelist,
+			    blacklist;
 
 			xhr.open( "GET", document.URL, false );
 			xhr.send(null);
@@ -52,18 +53,39 @@ chrome.runtime.onMessage.addListener(
 				/whitestorm/i,
 				/angular/i,
 				/underscore/i,
-				/forbes_welcome/i
+				/forbes_welcome/i,
+				/analytics/i,
+				/phive/i,
+				/burokratic/i,
+				/googleapis/i,
+				/buronews/i
 			];
 
+			blacklist = [
+				"blockadblock"
+			];
 
 			scripts = doc.getElementsByTagName("script");
 			//Modify scripts as you please
 			[].forEach.call( scripts, function( script ) {
 				var src = script.getAttribute("src");
-				if(!some(whitelist, function(item){ return item.test(src);})){
+				var inner = script.innerHTML;
+
+				if(!some(whitelist, function(item){ return item.test(src);}) &&
+					!some(whitelist, function(item){ return item.test(inner);}) || 
+					some(blacklist, function(item){return inner.indexOf(item) > -1})){
+
+					console.log("Blacklist: ", src);
 			    script.removeAttribute("src");
 			    script.innerHTML = '';
+
 			  } else {
+			  	// This doesn't work perfectly because the scripts sometimes use the code from the blacklisted files
+			  	// hopefully it doesn't break too much
+			  	blacklist.forEach(function(item){
+			  		src && src.replace("," + item, "");
+			  	});
+			  	script.src = src;
 			  	console.log("whitelisted: ", src);
 			  }
 			});
