@@ -9,6 +9,7 @@ Just click on the icon to run a script that reloads the page with none of their 
 So far it works on:
 
 * <http://wwww.wired.com>
+* <http://www.theglobeandmail.com/>
 
 Sites that are too complicated for it (it just kills the page):
 
